@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eval-deployment
+  labels:
+    app: eval
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eval
+  template:
+    metadata:
+      labels:
+        app: eval
+    spec:
+      containers:
+      - name: db
+        image: datascientest/mysql-k8s:1.0.0
+        ports:
+        - containerPort: 3306
+      - name: api
+        image: abdoucoul/lamine_app:1.0.0
+        ports:
+        - containerPort: 8000
+        env:
+          - name: db_pwd
+            valueFrom:
+              secretKeyRef:
+                name: db
+                key: db-password
+          - name: pod_ip
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP                  
+          
